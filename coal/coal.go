@@ -10,7 +10,6 @@ type Coal struct {
 }
 
 var balance = 1
-//var balanceChan = make(chan int, 1)
 var mtx sync.RWMutex
 
 func GetCurrentBalance() int {

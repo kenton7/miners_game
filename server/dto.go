@@ -1,26 +1,29 @@
 package server
 
-import baseminer "coal_mine/miners/base_miner"
+import (
+	factory_pack "coal_mine/factory"
+	baseminer "coal_mine/miners/base_miner"
+)
 
-type MinerRequestDTO struct {
+type CostRequestDTO struct {
 	Class string `json:"type"`
 }
 
-type MinerResponseDTO struct {
+type PriceResponseDTO struct {
 	Class string `json:"type"`
-	Cost  int    `json:"cost"`
+	Price int    `json:"price"`
 }
 
-type BuyMinerDTORequest struct {
-	Class string `json:"type"`
-	Amount int `json:"amount"`
+type BuyDTORequest struct {
+	Class    string `json:"type"`
+	Quantity int    `json:"quantity"`
 }
 
-type BuyMinerDTOResponse struct {
-	Class string `json:"type"`
-	Amount int `json:"amount"`
-	IsOk bool `json:"isOk"`
-	Message string `json:"message"`
+type BuyDTOResponse struct {
+	Class    string `json:"type"`
+	Quantity int    `json:"quantity"`
+	IsOk     bool   `json:"isOk"`
+	Message  string `json:"message"`
 }
 
 type ControlGameDTO struct {
@@ -33,4 +36,8 @@ type BalanceResponseDTO struct {
 
 type AllMinersInfoDTO struct {
 	Miners []baseminer.BaseMiner `json:"miners"`
+}
+
+type BoughtItemsDTO struct {
+	Items []factory_pack.Item `json:"items"`
 }

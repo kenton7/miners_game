@@ -23,6 +23,9 @@ func (s *HTTPServer) StartServer() error {
 	//router.Path("/command/{command}").HandlerFunc(s.httpHandlers.ControlGame)
 	router.Path("/balance").Methods("GET").HandlerFunc(s.httpHandlers.GetBalance)
 	router.Path("/miner").Methods("GET").HandlerFunc(s.httpHandlers.GetAllWorkingMiners)
+	router.Path("/item/{item}").Methods("GET").HandlerFunc(s.httpHandlers.GetItemsCost)
+	router.Path("/item").Methods("GET").HandlerFunc(s.httpHandlers.CheckItems)
+	router.Path("/item").Methods("POST").HandlerFunc(s.httpHandlers.BuyItem)
 
 	if err := http.ListenAndServe(":9092", router); err != nil {
 		if errors.Is(err, http.ErrServerClosed) {

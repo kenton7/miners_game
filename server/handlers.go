@@ -46,9 +46,9 @@ func (h *HTTPHandlers) GetMinerSalaryHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	response := MinerResponseDTO{
+	response := PriceResponseDTO{
 		Class: minerClass,
-		Cost:  salary,
+		Price: salary,
 	}
 
 	b, err := json.Marshal(response)
@@ -69,19 +69,19 @@ func (h *HTTPHandlers) BuyMiner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var request BuyMinerDTORequest
-	var response BuyMinerDTOResponse
+	var request BuyDTORequest
+	var response BuyDTOResponse
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		http.Error(w, "Check your request", http.StatusBadRequest)
 		return
 	}
 
-	if err := miner.BuyAndStartMiner(baseminer.MinerClass(request.Class), request.Amount, h.ctx); err != nil {
-		response = BuyMinerDTOResponse{
-			Class:   strings.ToLower(request.Class),
-			Amount:  request.Amount,
-			IsOk:    false,
-			Message: err.Error(),
+	if err := miner.BuyAndStartMiner(baseminer.MinerClass(request.Class), request.Quantity, h.ctx); err != nil {
+		response = BuyDTOResponse{
+			Class:    strings.ToLower(request.Class),
+			Quantity: request.Quantity,
+			IsOk:     false,
+			Message:  err.Error(),
 		}
 
 		b, err := json.Marshal(response)
@@ -97,11 +97,11 @@ func (h *HTTPHandlers) BuyMiner(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response = BuyMinerDTOResponse{
-		Class:   request.Class,
-		Amount:  request.Amount,
-		IsOk:    true,
-		Message: "Покупка успешна совершена!",
+	response = BuyDTOResponse{
+		Class:    request.Class,
+		Quantity: request.Quantity,
+		IsOk:     true,
+		Message:  "Покупка успешна совершена!",
 	}
 
 	b, err := json.Marshal(response)
@@ -117,7 +117,7 @@ func (h *HTTPHandlers) BuyMiner(w http.ResponseWriter, r *http.Request) {
 
 func (h *HTTPHandlers) GetBalance(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Should be GET method", http.StatusMethodNotAllowed)
+		http.Error(w, "Must be GET method", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -136,7 +136,7 @@ func (h *HTTPHandlers) GetBalance(w http.ResponseWriter, r *http.Request) {
 
 func (h *HTTPHandlers) GetAllWorkingMiners(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Shoud be GET method", http.StatusMethodNotAllowed)
+		http.Error(w, "Must be GET method", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -168,6 +168,101 @@ func (h *HTTPHandlers) GetAllWorkingMiners(w http.ResponseWriter, r *http.Reques
 	}
 
 	response := AllMinersInfoDTO{Miners: filtered}
+
+	b, err := json.Marshal(response)
+	if err != nil {
+		panic(err)
+	}
+
+	if _, err := w.Write(b); err != nil {
+		http.Error(w, "Failed to write HTTP-response", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *HTTPHandlers) GetItemsCost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Must be GET method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	itemParam := strings.ToLower(mux.Vars(r)["item"])
+
+	response := PriceResponseDTO{
+		Class: itemParam,
+		Price: factory_pack.GetItemCost(factory_pack.ItemName(itemParam)),
+	}
+
+	b, err := json.Marshal(response)
+	if err != nil {
+		panic(err)
+	}
+
+	if _, err := w.Write(b); err != nil {
+		http.Error(w, "Failed to write HTTP-response", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *HTTPHandlers) BuyItem(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Must be POST method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var request BuyDTORequest
+	var response BuyDTOResponse
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Check your request", http.StatusBadRequest)
+		return
+	}
+
+	if err := factory_pack.BuyItem(factory_pack.ItemName(strings.ToLower(request.Class))); err != nil {
+		response = BuyDTOResponse{
+			Class:    request.Class,
+			Quantity: request.Quantity,
+			IsOk:     false,
+			Message:  "Не хватает средств для покупки предмета",
+		}
+
+		b, err := json.Marshal(response)
+		if err != nil {
+			panic(err)
+		}
+		if _, err := w.Write(b); err != nil {
+			http.Error(w, "Failed to write HTTP-response", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	response = BuyDTOResponse{
+		Class:    request.Class,
+		Quantity: request.Quantity,
+		IsOk:     true,
+		Message:  "Предмет успешно куплен",
+	}
+
+	b, err := json.Marshal(response)
+	if err != nil {
+		panic(err)
+	}
+
+	if _, err := w.Write(b); err != nil {
+		http.Error(w, "Failed to write HTTP-response", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *HTTPHandlers) CheckItems(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Must be GET method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	boughtItems := factory_pack.GetBoughtItems()
+
+	response := BoughtItemsDTO{Items: boughtItems}
 
 	b, err := json.Marshal(response)
 	if err != nil {

@@ -10,10 +10,26 @@ import (
 )
 
 type Item struct {
-	Name     string
-	Amount   int
+	Name     ItemName
+	Price    ItemsPrice
 	BoughtAt string
 }
+
+type ItemName string
+
+const (
+	Pickaxe     ItemName = "кирка"
+	Ventilation ItemName = "вентиляция"
+	Wagon       ItemName = "вагонетка"
+)
+
+type ItemsPrice int
+
+const (
+	PickaxeCost     ItemsPrice = 3000
+	VentilationCost ItemsPrice = 15000
+	WagonCost       ItemsPrice = 50000
+)
 
 var miners []*baseminer.BaseMiner
 var items []Item
@@ -58,24 +74,74 @@ func GetInfoAboutMiners() {
 	fmt.Printf("Всего предприятием было нанято шахтёров: %d.\n", len(miners))
 }
 
-func NewItem(name string, amount int) Item {
+func newItem(name ItemName) Item {
+
+	var price ItemsPrice
+
+	switch name {
+	case Pickaxe:
+		price = PickaxeCost
+	case Ventilation:
+		price = VentilationCost
+	case Wagon:
+		price = WagonCost
+	}
+
 	return Item{
 		Name:     name,
-		Amount:   amount,
+		Price:    price,
 		BoughtAt: time.Now().Format("15:04:05"),
 	}
 }
 
-func BuyItem(item Item) error {
-	if coal_package.GetCurrentBalance() >= item.Amount {
+func BuyItem(name ItemName) error {
+	item := newItem(name)
+	if coal_package.GetCurrentBalance() >= int(item.Price) {
 		mtx.Lock()
-		coal_package.PayForWork(item.Amount)
+		coal_package.PayForWork(int(item.Price))
 		items = append(items, item)
-		mtx.Unlock()
 		fmt.Printf("✅ [%s] Предмет %s куплен!\n", item.BoughtAt, item.Name)
+		mtx.Unlock()
 		return nil
 	}
 	return errors.New("Не хвататет денег для покупки")
+}
+
+// func BuyItem(item Item) error {
+// 	if coal_package.GetCurrentBalance() >= item.Amount {
+// 		mtx.Lock()
+// 		coal_package.PayForWork(item.Amount)
+// 		items = append(items, item)
+// 		mtx.Unlock()
+// 		fmt.Printf("✅ [%s] Предмет %s куплен!\n", item.BoughtAt, item.Name)
+// 		return nil
+// 	}
+// 	return errors.New("Не хвататет денег для покупки")
+// }
+
+func GetItemCost(item ItemName) int {
+	switch item {
+	case Pickaxe:
+		return int(PickaxeCost)
+	case Ventilation:
+		return int(VentilationCost)
+	case Wagon:
+		return int(WagonCost)
+	default:
+		return 0
+	}
+}
+
+func GetBoughtItems() []Item {
+	var boughtItems []Item
+
+	for _, item := range items {
+		if item.BoughtAt != "" {
+			boughtItems = append(boughtItems, item)
+		}
+	}
+	
+	return boughtItems
 }
 
 func IsFinishedGame() <-chan struct{} {

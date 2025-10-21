@@ -38,7 +38,7 @@ func ControlGame(command int, ctx context.Context, stopMiners func()) {
 	case 1:
 		//TODO: - Сделать запрос баланса по API
 		fmt.Printf("💰 Ваш текущий баланс: %d\n", coal_package.GetCurrentBalance())
-		
+
 	case 2:
 		workers := checkWorkers()
 		miner.BuyAndStartMiner(baseminer.LittleMinerClass, workers, ctx)
@@ -51,17 +51,29 @@ func ControlGame(command int, ctx context.Context, stopMiners func()) {
 	case 5:
 		factory_pack.GetInfoAboutMiners()
 	case 6:
-		if err := factory_pack.BuyItem(factory_pack.NewItem("Кирка", 3000)); err != nil {
+		if err := factory_pack.BuyItem(factory_pack.Pickaxe); err != nil {
 			fmt.Println(err.Error())
 		}
+		// if err := factory_pack.BuyItem(factory_pack.Pickaxe, factory_pack.PickaxeCost); err != nil {
+		// 	fmt.Println(err.Error())
+		// }
+		// if err := factory_pack.BuyItem(factory_pack.NewItem("Кирка", 3000)); err != nil {
+		// 	fmt.Println(err.Error())
+		// }
 	case 7:
-		if err := factory_pack.BuyItem(factory_pack.NewItem("Вентиляция", 15000)); err != nil {
+		if err := factory_pack.BuyItem(factory_pack.Ventilation); err != nil {
 			fmt.Println(err.Error())
 		}
+		// if err := factory_pack.BuyItem(factory_pack.Ventilation, factory_pack.VentilationCost); err != nil {
+		// 	fmt.Println(err.Error())
+		// }
 	case 8:
-		if err := factory_pack.BuyItem(factory_pack.NewItem("Вагонетка", 50000)); err != nil {
+		if err := factory_pack.BuyItem(factory_pack.Wagon); err != nil {
 			fmt.Println(err.Error())
 		}
+		// if err := factory_pack.BuyItem(factory_pack.Wagon, factory_pack.WagonCost); err != nil {
+		// 	fmt.Println(err.Error())
+		// }
 	case 9:
 		fmt.Println("Предприятие решило завершить работу всех шахтёров...")
 		stopMiners()
