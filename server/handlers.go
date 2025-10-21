@@ -180,6 +180,25 @@ func (h *HTTPHandlers) GetAllWorkingMiners(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+func (h *HTTPHandlers) TotalMinersOnFactory(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Must be GET method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	response := TotalMinersDTO{TotalMiners: factory_pack.GetTotalMiners()}
+
+	b, err := json.Marshal(response)
+	if err != nil {
+		panic(err)
+	}
+
+	if _, err := w.Write(b); err != nil {
+		http.Error(w, "Failed to write HTTP-response", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *HTTPHandlers) GetItemsCost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Must be GET method", http.StatusMethodNotAllowed)
@@ -274,15 +293,3 @@ func (h *HTTPHandlers) CheckItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
-// func (h *HTTPHandlers) ControlGame(w http.ResponseWriter, r *http.Request) {
-// 	commandStr := mux.Vars(r)["command"]
-// 	command, err := strconv.Atoi(commandStr)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	w.WriteHeader(http.StatusOK)
-// 	menu.ControlGame(command, h.ctx, h.cancelCtx)
-// }

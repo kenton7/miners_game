@@ -66,12 +66,13 @@ func AddMinerToFactory(miner *baseminer.BaseMiner) {
 	miners = append(miners, miner)
 }
 
-func GetInfoAboutMiners() {
+func GetTotalMiners() int {
 	fmt.Println("Информация о шахтёрах на предприятии: ")
 	for _, minerInfo := range miners {
 		fmt.Printf("Шахтёр: %s. У него осталось %d энергии\n", minerInfo.GetClass(), minerInfo.GetPower())
 	}
 	fmt.Printf("Всего предприятием было нанято шахтёров: %d.\n", len(miners))
+	return len(miners)
 }
 
 func newItem(name ItemName) Item {
@@ -107,18 +108,6 @@ func BuyItem(name ItemName) error {
 	return errors.New("Не хвататет денег для покупки")
 }
 
-// func BuyItem(item Item) error {
-// 	if coal_package.GetCurrentBalance() >= item.Amount {
-// 		mtx.Lock()
-// 		coal_package.PayForWork(item.Amount)
-// 		items = append(items, item)
-// 		mtx.Unlock()
-// 		fmt.Printf("✅ [%s] Предмет %s куплен!\n", item.BoughtAt, item.Name)
-// 		return nil
-// 	}
-// 	return errors.New("Не хвататет денег для покупки")
-// }
-
 func GetItemCost(item ItemName) int {
 	switch item {
 	case Pickaxe:
@@ -140,7 +129,7 @@ func GetBoughtItems() []Item {
 			boughtItems = append(boughtItems, item)
 		}
 	}
-	
+
 	return boughtItems
 }
 
@@ -155,11 +144,11 @@ func IsFinishedGame() <-chan struct{} {
 
 			for _, item := range items {
 				switch item.Name {
-				case "Кирка":
+				case Pickaxe:
 					hasPickaxe = true
-				case "Вентиляция":
+				case Ventilation:
 					hasVentilation = true
-				case "Вагонетка":
+				case Wagon:
 					hasWagon = true
 				}
 			}
@@ -171,11 +160,4 @@ func IsFinishedGame() <-chan struct{} {
 		}
 	}()
 	return finishGame
-}
-
-func GetStats() {
-	GetInfoAboutMiners()
-	for _, item := range items {
-		fmt.Printf("Оборудование %s было куплено в: %s", item.Name, item.BoughtAt)
-	}
 }

@@ -26,6 +26,7 @@ func (s *HTTPServer) StartServer() error {
 	router.Path("/item/{item}").Methods("GET").HandlerFunc(s.httpHandlers.GetItemsCost)
 	router.Path("/item").Methods("GET").HandlerFunc(s.httpHandlers.CheckItems)
 	router.Path("/item").Methods("POST").HandlerFunc(s.httpHandlers.BuyItem)
+	router.Path("/factory").Methods("GET").HandlerFunc(s.httpHandlers.TotalMinersOnFactory)
 
 	if err := http.ListenAndServe(":9092", router); err != nil {
 		if errors.Is(err, http.ErrServerClosed) {

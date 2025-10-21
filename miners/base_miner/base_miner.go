@@ -74,17 +74,6 @@ func New(class MinerClass) *BaseMiner {
 	}
 }
 
-// func NewMiner(class MinerClass, salary, power, profit, breakTime int) BaseMiner {
-// 	return BaseMiner{
-// 		class:     class,
-// 		salary:    salary,
-// 		power:     power,
-// 		profit:    profit,
-// 		breakTime: breakTime,
-// 		startAt:   time.Now().Format("15:04:05"),
-// 	}
-// }
-
 func (b *BaseMiner) Run(ctx context.Context, worker int) <-chan coal_package.Coal {
 	coalChan := make(chan coal_package.Coal, b.Power)
 	ticker := time.NewTicker(time.Duration(b.breakTime) * time.Second)

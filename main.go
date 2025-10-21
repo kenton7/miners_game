@@ -6,6 +6,7 @@ import (
 	"coal_mine/menu"
 	"coal_mine/server"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -21,18 +22,18 @@ func main() {
 		}
 	}()
 
-	//factoryCtx, factoryStop := context.WithCancel(context.Background())
 	startTime := time.Now()
 	go menu.ShowMenu()
 
 	go coal_package.IncreaseBalancePerSecond()
 
-	//go menu.StartGame(factoryCtx, factoryStop)
-
 	finishGameChan := factory_pack.IsFinishedGame()
 	<-finishGameChan
-	//factoryStop()
 	fmt.Println("\n🎉 Вы купили все предметы на предприятие и тем самым прошли игру!")
 	fmt.Println("⏱ Прохождение заняло:", time.Since(startTime))
 	fmt.Println("📊 Статистика за всю игру:")
+
+	factory_pack.GetTotalMiners()
+
+	os.Exit(0)
 }

@@ -38,6 +38,10 @@ type AllMinersInfoDTO struct {
 	Miners []baseminer.BaseMiner `json:"miners"`
 }
 
+type TotalMinersDTO struct {
+	TotalMiners int `json:"total_miners"`
+}
+
 type BoughtItemsDTO struct {
 	Items []factory_pack.Item `json:"items"`
 }
